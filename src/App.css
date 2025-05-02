@@ -34,7 +34,19 @@
 }
 
 .card {
-  padding: 2em;
+  padding: 0em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+
+.pixel-art {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  width: 100%;
+
 }
 
 .read-the-docs {

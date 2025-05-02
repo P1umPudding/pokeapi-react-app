@@ -1,3 +1,5 @@
+import 'bootstrap/dist/css/bootstrap.min.css';  // Für das CSS
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';  // Für die JavaScript-Komponenten
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'

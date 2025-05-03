@@ -1,8 +1,6 @@
 #root {
-  max-width: 1280px;
+  width: 1600px;
   margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
 }
 
 .logo {
@@ -37,18 +35,13 @@
   padding: 0em;
 }
 
-.read-the-docs {
-  color: #888;
+.px-2-5 {
+  padding-left: 0.8rem !important;
+  padding-right: 0.8rem !important;
 }
-
 
 .pixel-art {
   image-rendering: pixelated;
   image-rendering: crisp-edges;
   width: 100%;
-
-}
-
-.read-the-docs {
-  color: #888;
 }

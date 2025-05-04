@@ -1,12 +1,36 @@
-# React + Vite
+# 🧪 React Pokédex – Coding Task
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This project was created as part of a coding task. The goal was to build a small Pokédex application using React, loading and displaying Pokémon data from the public [PokeAPI GraphQL](https://pokeapi.co/docs/graphql) endpoint.
 
-Currently, two official plugins are available:
+<p style="text-align: center">
+  <img src="./public/assets/readme/main-view.png" alt="Main View" style="height: 400px; margin-right: 10px; border-radius: 7px" />
+  <img src="./public/assets/readme/details-page.png" alt="Details Page" style="height: 400px; border-radius: 7px" />
+</p>
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-## Expanding the ESLint configuration
+## 🔧 Tech Stack
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- [React](https://react.dev/)
+- [Vite](https://vitejs.dev/)
+- [Bootstrap 5](https://getbootstrap.com/)
+- [GraphQL](https://pokeapi.co/docs/graphql)
+
+## 🚀 Features
+
+- Automatically loads Pokémon from API on startup
+- Displays each Pokémon's name, ID, image and types
+- Filter by Pokémon types and generations (support for multiple selection)
+- Detail view showing extended information about a selected Pokémon
+
+## 🖥️ Getting Started
+
+```bash
+# Clone the repository
+git clone https://github.com/your-username/pokeapi-react-app.git
+cd pokeapi-react-app
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev

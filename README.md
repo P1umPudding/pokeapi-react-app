@@ -2,7 +2,7 @@
 
 This project was created as part of a coding task. The goal was to build a small Pokédex application using React, loading and displaying Pokémon data from the public [PokeAPI GraphQL](https://pokeapi.co/docs/graphql) endpoint.
 
-<p style="text-align: center">
+<p align=center>
   <img src="./public/assets/readme/main-view.png" alt="Main View" style="height: 400px; margin-right: 10px; border-radius: 7px" />
   <img src="./public/assets/readme/details-page.png" alt="Details Page" style="height: 400px; border-radius: 7px" />
 </p>

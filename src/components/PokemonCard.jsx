@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'; // Importiere Link
+import { Link } from 'react-router-dom';
 import TypeIcon from './TypeIcon';
 
 const PokemonCard = ({ pokemon }) => {
@@ -21,7 +21,7 @@ const PokemonCard = ({ pokemon }) => {
           </div>
         </div>
 
-        {/* Hier das Bild in einen Link einbetten */}
+        {/* Image with link to details page */}
         <Link to={`/pokemon/${pokemon.name.toLowerCase()}`}>
           <img 
             src={pokemon.image} 

@@ -1,7 +1,8 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import TypeIcon from './TypeIcon';
-import Gauge from './Gauge'; // Importiere die HeightGauge-Komponente
+import Gauge from './Gauge';
+import StatBar from './StatBar';
 
 const typeColors = {
     fire: '#fddfdf',
@@ -29,57 +30,47 @@ const getTypeColor = (type) => typeColors[type] || '#f0f0f0';
 const PokemonDetail = ({ pokemons }) => {
     const { name } = useParams();
     const navigate = useNavigate();
-    const [imgLoaded, setImgLoaded] = useState(false);
     const [additionalData, setAdditionalData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [offsetX, setOffsetX] = useState(0);
+    const [offsetY, setOffsetY] = useState(0);
 
     const pokemon = pokemons.find(p => p.name.toLowerCase() === name.toLowerCase());
 
     useEffect(() => {
         const fetchAdditionalData = async () => {
             const query = `
-        query pokemon_details($name: String) {
-          species: pokemon_v2_pokemonspecies(where: {name: {_eq: $name}}) {
-            is_legendary
-            is_mythical
-            generation: pokemon_v2_generation {
-              name
-            }
-            habitat: pokemon_v2_pokemonhabitat {
-              name
-            }
-            flavorText: pokemon_v2_pokemonspeciesflavortexts(
-              where: {
-                pokemon_v2_language: {name: {_eq: "en"}},
-                pokemon_v2_version: {name: {_eq: "firered"}}
-              },
-              limit: 1
-            ) {
-              flavor_text
-            }
-            pokemon: pokemon_v2_pokemons_aggregate(limit: 1) {
-                nodes {
+            query pokemon_details($name: String) {
+              species: pokemon_v2_pokemonspecies(where: {name: {_eq: $name}}) {
+                is_legendary
+                is_mythical
+                habitat: pokemon_v2_pokemonhabitat { name }
+                flavorText: pokemon_v2_pokemonspeciesflavortexts(
+                  where: {
+                    pokemon_v2_language: {name: {_eq: "en"}},
+                    pokemon_v2_version: {name: {_eq: "firered"}}
+                  }, limit: 1 ) {
+                  flavor_text
+                }
+                pokemon: pokemon_v2_pokemons_aggregate(limit: 1) {
+                  nodes {
                     height
                     weight
                     stats: pokemon_v2_pokemonstats {
-                        base_stat
-                        stat: pokemon_v2_stat {
-                            name
-                        }
+                      base_stat
+                      stat: pokemon_v2_stat { name }
                     }
                     abilities: pokemon_v2_pokemonabilities_aggregate {
-                        nodes {
-                            ability: pokemon_v2_ability {
-                                name
-                            }
-                        }
+                      nodes {
+                        ability: pokemon_v2_ability { name }
+                      }
                     }
+                  }
                 }
+              }
             }
-          }
-        }
-      `;
-
+          `;
+          
             try {
                 const response = await fetch('https://beta.pokeapi.co/graphql/v1beta', {
                     method: 'POST',
@@ -90,7 +81,6 @@ const PokemonDetail = ({ pokemons }) => {
                         operationName: 'pokemon_details',
                     }),
                 });
-
                 const result = await response.json();
                 setAdditionalData(result.data.species[0]);
             } catch (error) {
@@ -102,9 +92,27 @@ const PokemonDetail = ({ pokemons }) => {
 
         if (pokemon) {
             fetchAdditionalData();
+            setOffsetX(pseudoRandomFromId(pokemon.id, 1, 0, 600));
+            setOffsetY(pseudoRandomFromId(pokemon.id, 2, 0, 600));
         }
     }, [name, pokemon]);
 
+    function pseudoRandomFromId(id, seed = 1, min = 0, max = 1) {
+        const x = Math.sin(id * seed) * 10000;
+        const base = x - Math.floor(x);
+        return min + base * (max - min);
+    }
+
+
+    if (!pokemons || pokemons.length === 0) {
+        return (
+            <div className="d-flex justify-content-center mt-5">
+                <div className="spinner-border text-primary mt-5" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        );
+    }
     if (!pokemon) {
         return (
             <div className="d-flex flex-column align-items-center mt-5">
@@ -116,7 +124,6 @@ const PokemonDetail = ({ pokemons }) => {
             </div>
         );
     }
-    console.log('Height:', additionalData?.pokemon?.nodes[0]?.height);
     return (
         <div className="d-flex flex-column align-items-center mt-4">
             {/* Zurück-Button */}
@@ -132,9 +139,14 @@ const PokemonDetail = ({ pokemons }) => {
                     maxWidth: '500px',
                     width: '90%',
                     boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
-                    backgroundColor: '#fff',
+                    backgroundImage: `url('/assets/card-background.png')`,
+                    backgroundColor: getTypeColor(pokemon.types[0]) + 'cc',
+                    backgroundBlendMode: 'overlay',
+                    backgroundRepeat: 'repeat',
+                    backgroundPosition: `${offsetX}px ${offsetY}px`,
                     borderRadius: '1rem',
                 }}
+
             >
                 {/* Name + ID */}
                 <div className="d-flex justify-content-center align-items-baseline gap-4 mb-0">
@@ -176,14 +188,6 @@ const PokemonDetail = ({ pokemons }) => {
                                 cursor: 'default',
                                 transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
                             }}
-                            onMouseEnter={e => {
-                                e.currentTarget.style.transform = 'scale(1.05)';
-                                e.currentTarget.style.boxShadow = '0 0.25rem 0.75rem rgba(0,0,0,0.15)';
-                            }}
-                            onMouseLeave={e => {
-                                e.currentTarget.style.transform = 'scale(1)';
-                                e.currentTarget.style.boxShadow = '';
-                            }}
                         >
                             <TypeIcon type={type} className="me-2" />
                             <span style={{ textTransform: 'capitalize' }}>{type}</span>
@@ -218,7 +222,7 @@ const PokemonDetail = ({ pokemons }) => {
                                 color: '#404040',
                             }}
                         >
-                            {loading ? '-' : additionalData?.generation?.name ?? '-'}
+                            generation {loading ? '-' : pokemon.generation ?? '-'}
                         </span>
                     </div>
                 </div>
@@ -230,7 +234,7 @@ const PokemonDetail = ({ pokemons }) => {
                             <strong className="me-2" style={{ fontSize: '1.1rem' }}>Height:</strong>
                             <div className="d-flex flex-column align-items-start ms-3">
                                 <Gauge value={additionalData?.pokemon?.nodes[0]?.height / 10} radius={25} maximum={20} />
-                                <span className="d-flex align-items-center justify-content-center" style={{ marginTop: '-4px', width: '100%' }}> {loading ? '-' : `${(additionalData?.pokemon?.nodes[0]?.height / 10) ?? 'Unknown'} m`} </span>
+                                <span className="d-flex align-items-center justify-content-center" style={{ marginTop: '-4px', width: '100%' }}> {loading ? '-' : `${(additionalData?.pokemon?.nodes[0]?.height ?? 'Unknown') / 10} m`} </span>
                             </div>
                         </div>
                     </div>
@@ -239,25 +243,74 @@ const PokemonDetail = ({ pokemons }) => {
                             <strong className="me-2" style={{ fontSize: '1.1rem' }}>Weight:</strong>
                             <div className="d-flex flex-column align-items-start ms-3">
                                 <Gauge value={additionalData?.pokemon?.nodes[0]?.weight / 10} radius={25} maximum={1000} />
-                                <span className="d-flex align-items-center justify-content-center" style={{ marginTop: '-4px', width: '100%' }}> {loading ? '-' : `${(Math.round(additionalData?.pokemon?.nodes[0]?.weight * 10) / 100) ?? 'Unknown'} kg`} </span>
+                                <span className="d-flex align-items-center justify-content-center" style={{ marginTop: '-4px', width: '100%' }}> {loading ? '-' : `${(Math.round(additionalData?.pokemon?.nodes[0]?.weight ?? 'Unknown') * 10) / 100} kg`} </span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <p>{loading ? '-' : additionalData.pokemon.nodes[0].stats[0].stat.name ?? 'Unknown'}: {loading ? '-' : additionalData.pokemon.nodes[0].stats[0].base_stat ?? 'Unknown'}</p>
-                <p>{loading ? '-' : additionalData.pokemon.nodes[0].stats[1].stat.name ?? 'Unknown'}: {loading ? '-' : additionalData.pokemon.nodes[0].stats[1].base_stat ?? 'Unknown'}</p>
-                <p>{loading ? '-' : additionalData.pokemon.nodes[0].stats[2].stat.name ?? 'Unknown'}: {loading ? '-' : additionalData.pokemon.nodes[0].stats[2].base_stat ?? 'Unknown'}</p>
-                <p>{loading ? '-' : additionalData.pokemon.nodes[0].stats[3].stat.name ?? 'Unknown'}: {loading ? '-' : additionalData.pokemon.nodes[0].stats[3].base_stat ?? 'Unknown'}</p>
-                <p>{loading ? '-' : additionalData.pokemon.nodes[0].stats[4].stat.name ?? 'Unknown'}: {loading ? '-' : additionalData.pokemon.nodes[0].stats[4].base_stat ?? 'Unknown'}</p>
-                <p>{loading ? '-' : additionalData.pokemon.nodes[0].stats[5].stat.name ?? 'Unknown'}: {loading ? '-' : additionalData.pokemon.nodes[0].stats[5].base_stat ?? 'Unknown'}</p>
-                {/* Total Stats */}
-                {!loading && (
-                    <p>
-                        <strong>Total:</strong>{' '}{additionalData.pokemon.nodes[0].stats.reduce((sum, s) => sum + (s.base_stat || 0), 0)}
-                    </p>
-                )}
-                {loading && <p>Total: -</p>}
+                {/* Stats */}
+                <div className="mt-4 pt-0 px-2 pb-2" style={{ backgroundColor: '#ffffff' + '55', border: '2px solid ' + getTypeColor(pokemon.types[0]) + 'bb', borderRadius: '0.7rem' }}>
+                    <div className="row">
+                        <div className="col-12 col-md-6 d-flex flex-column">
+                            <strong className="d-flex align-items-start" style={{ fontSize: '1.7rem' }}>Stats</strong>
+                        </div>
+                        <div className="col-12 col-md-6 d-flex flex-column justify-content-between">
+                            <div></div>
+                            <div className="d-flex align-items-start mb-1" style={{ fontSize: '1.1rem' }}>
+                                <div className="d-flex align-items-start">
+                                    <strong>Total:</strong>
+                                    {!loading && (<p className="m-0 ms-3">{additionalData.pokemon.nodes[0].stats.reduce((sum, s) => sum + (s.base_stat || 0), 0)}</p>)} {loading && <p>-</p>}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="row mt-1 gy-1">
+                        <div className="col-12 col-md-6 d-flex flex-column">
+                            <div className="d-flex align-items-center">
+                                <span className="pe-2 text-uppercase">{loading ? '-' : additionalData.pokemon.nodes[0].stats[0].stat.name ?? 'Unknown'}:</span>
+                                <span>{loading ? '-' : additionalData.pokemon.nodes[0].stats[0].base_stat ?? 'Unknown'}</span>
+                                {!loading && typeof additionalData.pokemon.nodes[0].stats[0].base_stat === 'number' && <StatBar value={additionalData.pokemon.nodes[0].stats[0].base_stat} />}
+                            </div>
+                        </div>
+                        <div className="col-12 col-md-6 d-flex flex-column">
+                            <div className="d-flex align-items-center">
+                                <span className="pe-2 text-capitalize">{loading ? '-' : additionalData.pokemon.nodes[0].stats[1].stat.name ?? 'Unknown'}:</span>
+                                <span>{loading ? '-' : additionalData.pokemon.nodes[0].stats[1].base_stat ?? 'Unknown'}</span>
+                                {!loading && typeof additionalData.pokemon.nodes[0].stats[1].base_stat === 'number' && <StatBar value={additionalData.pokemon.nodes[0].stats[1].base_stat} />}
+                            </div>
+                        </div>
+                        <div className="col-12 col-md-6 d-flex flex-column">
+                            <div className="d-flex align-items-center">
+                                <span className="pe-2 text-capitalize">{loading ? '-' : additionalData.pokemon.nodes[0].stats[2].stat.name ?? 'Unknown'}:</span>
+                                <span>{loading ? '-' : additionalData.pokemon.nodes[0].stats[2].base_stat ?? 'Unknown'}</span>
+                                {!loading && typeof additionalData.pokemon.nodes[0].stats[2].base_stat === 'number' && <StatBar value={additionalData.pokemon.nodes[0].stats[2].base_stat} />}
+                            </div>
+                        </div>
+                        <div className="col-12 col-md-6 d-flex flex-column">
+                            <div className="d-flex align-items-center">
+                                <span className="pe-2 text-capitalize">{loading ? '-' : additionalData.pokemon.nodes[0].stats[3].stat.name ?? 'Unknown'}:</span>
+                                <span>{loading ? '-' : additionalData.pokemon.nodes[0].stats[3].base_stat ?? 'Unknown'}</span>
+                                {!loading && typeof additionalData.pokemon.nodes[0].stats[3].base_stat === 'number' && <StatBar value={additionalData.pokemon.nodes[0].stats[3].base_stat} />}
+                            </div>
+                        </div>
+                        <div className="col-12 col-md-6 d-flex flex-column">
+                            <div className="d-flex align-items-center">
+                                <span className="pe-2 text-capitalize">{loading ? '-' : additionalData.pokemon.nodes[0].stats[4].stat.name ?? 'Unknown'}:</span>
+                                <span>{loading ? '-' : additionalData.pokemon.nodes[0].stats[4].base_stat ?? 'Unknown'}</span>
+                                {!loading && typeof additionalData.pokemon.nodes[0].stats[4].base_stat === 'number' && <StatBar value={additionalData.pokemon.nodes[0].stats[4].base_stat} />}
+                            </div>
+                        </div>
+                        <div className="col-12 col-md-6 d-flex flex-column">
+                            <div className="d-flex align-items-center">
+                                <span className="pe-2 text-capitalize">{loading ? '-' : additionalData.pokemon.nodes[0].stats[5].stat.name ?? 'Unknown'}:</span>
+                                <span>{loading ? '-' : additionalData.pokemon.nodes[0].stats[5].base_stat ?? 'Unknown'}</span>
+                                {!loading && typeof additionalData.pokemon.nodes[0].stats[5].base_stat === 'number' && <StatBar value={additionalData.pokemon.nodes[0].stats[5].base_stat} />}
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 {/* Abilities */}
                 <div className="d-flex align-items-center">
@@ -271,18 +324,8 @@ const PokemonDetail = ({ pokemons }) => {
                     </div>
                 </div>
 
-
-
                 {/* Flavor Text */}
-                <div
-                    className="mt-4 pb-0 p-3"
-                    style={{
-                        backgroundColor: '#f1f8ff',
-                        borderRadius: '1rem',
-                        fontFamily: '"Cursive", sans-serif',
-                        fontStyle: 'italic',
-                    }}
-                >
+                <div className="mt-4 pb-0 p-3" style={{ backgroundColor: '#f1f8ff', borderRadius: '1rem', fontFamily: '"Cursive", sans-serif', fontStyle: 'italic', }}>
                     <p>{additionalData?.flavorText?.[0]?.flavor_text ?? 'N/A'}</p>
                 </div>
             </div>

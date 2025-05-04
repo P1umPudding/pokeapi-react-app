@@ -1,4 +1,3 @@
-import './typeicon.css';
 import sprite from '/assets/type-icons.png';
 
 const typeToPosition = {

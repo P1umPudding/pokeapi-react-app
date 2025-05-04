@@ -13,17 +13,15 @@ const Sidebar = ({
   generationsExpanded,
   setGenerationsExpanded,
 }) => {
-  // Funktion, um alle Generationen auszuwählen
+
   const selectAllGenerations = () => {
     setSelectedGenerations(generations);
   };
 
-  // Funktion, um keine Generationen auszuwählen
   const deselectAllGenerations = () => {
     setSelectedGenerations([]);
   };
 
-  // Funktion, um alle Types abzuwählen
   const deselectAllTypes = () => {
     setSelectedTypes([]);
   };

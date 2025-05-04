@@ -35,6 +35,11 @@
   padding: 0em;
 }
 
+.type-icon {
+  display: inline-block;
+  background-repeat: no-repeat;
+}
+
 .px-2-5 {
   padding-left: 0.8rem !important;
   padding-right: 0.8rem !important;

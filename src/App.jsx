@@ -8,7 +8,7 @@ import PokemonDetail from './components/PokemonDetail';
 
 const endpoint = 'https://beta.pokeapi.co/graphql/v1beta';
 
-// Query: nur Pokemon mit id < 10000
+// nur Pokemon mit id < 10000 (da sonst nicht Teil von normalen Generationen)
 const GET_ALL_DATA = gql`
   query getAllData {
     pokemon_v2_pokemon(where: { id: { _lt: 10000 } }) {
@@ -26,10 +26,8 @@ const GET_ALL_DATA = gql`
   }
 `;
 
-// Feste Generationen-Liste (römisch i–ix)
-const FIXED_GENERATIONS = ['i','ii','iii','iv','v','vi','vii','viii','ix'];
+const FIXED_GENERATIONS = ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix'];
 
-// Hilfsfunktion: aus 'generation-i' → 'i', etc., sonst null
 const mapGenNameToRoman = (genName) => {
   if (!genName) return null;
   const [, roman] = genName.split('-');
@@ -40,10 +38,11 @@ function App() {
   const [pokemons, setPokemons] = useState([]);
   const [types, setTypes] = useState([]);
   const [selectedTypes, setSelectedTypes] = useState([]);
-  const [selectedGenerations, setSelectedGenerations] = useState(['i']); // default 'i'
+  const [selectedGenerations, setSelectedGenerations] = useState(['i']);
   const [showSidebar, setShowSidebar] = useState(true);
-  const [typesExpanded, setTypesExpanded] = useState(false);
-  const [generationsExpanded, setGenerationsExpanded] = useState(false);
+  const [typesExpanded, setTypesExpanded] = useState(true);
+  const [generationsExpanded, setGenerationsExpanded] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     request(endpoint, GET_ALL_DATA)
@@ -64,7 +63,8 @@ function App() {
         setPokemons(enriched);
         setTypes(data.pokemon_v2_type.map(t => t.name).sort());
       })
-      .catch(err => console.error('Error during API request:', err));
+      .catch(err => console.error('Error during API request:', err))
+      .finally(() => setLoading(false));
   }, []);
 
   const filteredPokemons = pokemons.filter(p =>
@@ -90,7 +90,7 @@ function App() {
                 </div>
               )}
               <div className="text-start">
-                {selectedTypes.length > 0  || selectedGenerations.length < FIXED_GENERATIONS.length ? (
+                {selectedTypes.length > 0 || selectedGenerations.length < FIXED_GENERATIONS.length ? (
                   <small className="text-muted">
                     {filteredPokemons.length} out of {pokemons.length}
                   </small>
@@ -117,9 +117,16 @@ function App() {
                   setGenerationsExpanded={setGenerationsExpanded}
                 />
               )}
+              {/* Pokemon */}
               <div className="flex-grow-1 mx-2 px-3 px-2-5 py-2 rounded-3" style={{ flexBasis: '0', backgroundColor: '#f0f0f0' }}>
                 <div className="row">
-                  {filteredPokemons.length > 0 ? (
+                  {loading ? (
+                    <div className="col-12 text-center mt-5">
+                      <div className="spinner-border text-primary" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                      </div>
+                    </div>
+                  ) : filteredPokemons.length > 0 ? (
                     filteredPokemons.map(p => <PokemonCard key={p.id} pokemon={p} />)
                   ) : (
                     <div className="col-12"><p className="text-center">No Pokémon found</p></div>

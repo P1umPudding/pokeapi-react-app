@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'; // Importiere Link
 import TypeIcon from './TypeIcon';
 
 const PokemonCard = ({ pokemon }) => {
@@ -6,7 +7,7 @@ const PokemonCard = ({ pokemon }) => {
       <div className="card text-center h-100">
         <div className="card-body py-2 px-2">
           <div className="d-flex justify-content-between align-items-center">
-            <h4 className="card-title mb-0" style={{ fontSize: 'clamp(1.2rem, 1.2vw, 1.5rem)' }}>
+            <h4 className="card-title mb-0" style={{ textTransform: 'capitalize', fontSize: 'clamp(1.2rem, 1.2vw, 1.5rem)' }}>
               {pokemon.name}
             </h4>
             <p className="card-text mb-0" style={{ fontSize: 'clamp(1.0rem, 0.9vw, 1.3rem)' }}>
@@ -20,7 +21,14 @@ const PokemonCard = ({ pokemon }) => {
           </div>
         </div>
 
-        <img src={pokemon.image} className="card-img-top pixel-art" alt={pokemon.name} />
+        {/* Hier das Bild in einen Link einbetten */}
+        <Link to={`/pokemon/${pokemon.name.toLowerCase()}`}>
+          <img 
+            src={pokemon.image} 
+            className="card-img-top pixel-art" 
+            alt={pokemon.name} 
+          />
+        </Link>
       </div>
     </div>
   );

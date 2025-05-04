@@ -1,5 +1,5 @@
 import './typeicon.css';
-import sprite from '../assets/type-icons.png';
+import sprite from '/assets/type-icons.png';
 
 const typeToPosition = {
   normal: { row: 0, col: 1 },

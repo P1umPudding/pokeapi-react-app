@@ -40,8 +40,20 @@
   padding-right: 0.8rem !important;
 }
 
+.p-2-5 {
+  padding: 0.8rem !important;
+}
+
 .pixel-art {
   image-rendering: pixelated;
   image-rendering: crisp-edges;
   width: 100%;
+}
+
+.my-btn {
+  border:  none !important;
+}
+
+.btn-sm {
+  padding: 0px 5px;
 }

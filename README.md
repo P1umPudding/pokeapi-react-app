@@ -26,10 +26,11 @@ This project was created as part of a coding task. The goal was to build a small
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/pokeapi-react-app.git
+git clone https://github.com/P1umPudding/pokeapi-react-app.git
 cd pokeapi-react-app
 
 # Install dependencies
+# node v22.15.0 required
 npm install
 
 # Start development server
